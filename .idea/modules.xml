@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Prueba Distribuida.app-books-prueba.app-books.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Prueba Distribuida.app-books-prueba.app-books.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app-books-prueba.app-books.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app-books-prueba.app-books.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app-books.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app-books.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app-books.test.iml" filepath="$PROJECT_DIR$/.idea/modules/app-books.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.distribuida.apps.books.app-books.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.distribuida.apps.books.app-books.main.iml" />

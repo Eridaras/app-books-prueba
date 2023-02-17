@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: BOOK API
+  description: Book Servicio
+  license:
+    name: MIT
+    url: http://localhost:7001
+  version: 1.0.0
+tags:
+  - name: Books Rest
+    description: EL CRUD DE BOOKS
+  - name: Author - Books
+    description: LISTAR DE AUTHOR Y BOOKS
+
+paths:
+  /books:
+    get:
+      tags:
+        - Books Rest
+      summary: Lista de books
+      description: Obtenemos todas las books
+      operationId: OBTENER TODOS
+      responses:
+        "200":
+          description: Obtención completada
+          content:
+            application/json: {}
+        "400":
+          description: Método no valido
+          content:
+            application/json: {}
+    post:
+      tags:
+        - Books Rest
+      summary: Se crea un Book
+      description: Ingreso de un nuevo Book
+      operationId: CREAR Book
+      requestBody:
+        description: Book a crear
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        "204":
+          description: Book Creado
+          content:
+            application/json: { }
+        "400":
+          description: Metodo no valido
+          content:
+            application/json: { }
+  /books/{id}:
+    get:
+      tags:
+        - Books Rest
+      summary: Un Solo Book
+      description: Obtenemos uno de los Books
+      operationId: OBTENER UNO
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            format: int32
+            type: integer
+      responses:
+        "200":
+          description: Obtención completada
+          content:
+            application/json: { }
+        "400":
+          description: Método no valido
+          content:
+            application/json: { }
+    delete:
+      tags:
+        - Books Rest
+      summary: borrar un Book
+      description: Se a borrado un book existente
+      operationId: BORRAR BOOK
+      parameters:
+        - name: id
+          in: path
+          description: Book Id
+          required: true
+          schema:
+            format: int32
+            type: integer
+      responses:
+        "204":
+          description: Book Borrada
+          content:
+            application/json: { }
+        "400":
+          description: Metodo no valido
+          content:
+            application/json: { }
+    put:
+      tags:
+        - Books Rest
+      summary: actualiza un book
+      description: Se actualiza un book existente
+      operationId: ACTUALIZAR BOOKS
+      parameters:
+        - name: id
+          in: path
+          description: Book Id
+          required: true
+          schema:
+            format: int32
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        "204":
+          description: Book Actualizada
+          content:
+            application/json: { }
+        "400":
+          description: Metodo no valido
+          content:
+            application/json: { }
+  /books/authors:
+    get:
+      tags:
+        - Author - Books
+      summary: Lista de Authores con Libros
+      description: Obtenemos toda la base de datos
+      operationId: OBTENER TODOS
+      responses:
+        "200":
+          description: Obtención completada
+          content:
+            application/json: { }
+        "400":
+          description: Método no valido
+          content:
+            application/json: { }
+
+
+
+
+components:
+  schemas:
+    Book:
+      description: 'Presentacion Books'
+      required:
+        - isbn
+        - title
+        - author
+        - price
+      type: object
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        price:
+          type: number
+
+

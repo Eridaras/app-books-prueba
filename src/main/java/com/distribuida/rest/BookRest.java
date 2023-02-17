@@ -3,73 +3,199 @@ package com.distribuida.rest;
 import com.distribuida.clientes.authors.AuthorRestProxy;
 import com.distribuida.clientes.authors.AuthorsCliente;
 import com.distribuida.db.Book;
+
 import com.distribuida.dtos.BookDto;
-import com.distribuida.servicios.BookRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.servers.Server;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import java.util.Collections;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+
 @Path("/books")
-@Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+
 public class BookRest {
 
-    @Inject BookRepository bookService;
+    @PersistenceContext(unitName = "BookUP")
+    private EntityManager entityManager;
 
     @RestClient
-    @Inject AuthorRestProxy proxyAuthor;
+    @Inject
+    AuthorRestProxy proxyAuthor;
+    @GET
+    @Operation(
+            operationId = "OBTENER TODOS",
+            summary = "Lista de authors",
+            description = "obtenemos todas los authors"
 
-    /**
-     * GET          /books/{id}     buscar un libro por ID
-     * GET          /books          listar todos
-     * POST         /books          insertar
-     * PUT/PATCH    /books/{id}     actualizar
-     * DELETE       /books/{id}     eliminar
-     */
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Obtención completada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Método no valido",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Book> findAll() {
+        return entityManager.createNamedQuery("Book.findAll", Book.class).getResultList();
+    }
 
+    @POST
+    @Operation(
+            operationId = "CREAR Book",
+            summary = "Se crea un Book",
+            description = "Ingreso de un nuevo author"
+
+    )
+    @APIResponse(
+            responseCode = "204",
+            description = "Book Creado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Metodo no valido",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    public void create(
+            @RequestBody(
+                    description = "Books a crear",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = Book.class))
+            )
+            Book book) {
+        System.out.println("Entramos a Crear Book " + book.getAuthor());
+        try {
+            entityManager.persist(book);
+        } catch (Exception e) {
+            System.out.println(e);;
+        }
+    }
     @GET
     @Path("/{id}")
-    public Response findById(@PathParam("id") Integer id) {
-        Optional<Book> ret = bookService.findById(id);
+    @Operation(
+            operationId = "OBTENER UN BOOK",
+            summary = "Se obtiene un book",
+            description = "Book"
 
-        if( ret.isPresent() ) {
-            return Response.ok(ret.get()).build();
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Obtención completada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Método no valido",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    public Book find(@PathParam("id") Integer id){
+        try {
+            Book book = entityManager.find(Book.class, id);
+            return book;
+        }catch (Exception e){
+            return null;
         }
-        else {
-            String msg = String.format( "Book[id=%d] not found.", id );
+    }
 
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(msg)
-                    .build();
+    @DELETE
+    @Path("/{id}")
+    @Operation(
+            operationId = "BORRAR BOOKS",
+            summary = "borrar un book",
+            description = "Se a borrado un book existente"
+
+    )
+    @APIResponse(
+            responseCode = "204",
+            description = "Book Borrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Metodo no valido",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @Transactional
+    public void delete(@PathParam("id") Integer id){
+        System.out.println("Entramor a Borrar");
+        try {
+            Book book = entityManager.find(Book.class, id);
+            entityManager.remove(book);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    @PUT
+    @Path("{id}")
+    @Operation(
+            operationId = "ACTUALIZAR BOOK",
+            summary = "actualiza un Book",
+            description = "Se actualiza un book existente"
+
+    )
+    @APIResponse(
+            responseCode = "204",
+            description = "Book Actualizado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Metodo no valido",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Book update(
+            @RequestBody(
+            description = "Books a crear",
+            required = true,
+            content = @Content(schema = @Schema(implementation = Book.class))
+            ) Book book, @PathParam("id") Integer id ){
+        try {
+            Book bookActualizado = entityManager.find(Book.class,id);
+
+            bookActualizado.setIsbn(book.getIsbn());
+            bookActualizado.setAuthor(book.getAuthor());
+            bookActualizado.setTitle(book.getTitle());
+            bookActualizado.setPrice(book.getPrice());
+            entityManager.persist(bookActualizado);
+            return bookActualizado;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 
     @GET
-    public List<Book> findAll() {
-        System.out.println("Buscando todos");
-        return bookService.findAll();
-    }
-
-    @GET
-    @Path("/all")
-    public List<BookDto> findAllCompleto() throws Exception {
-        var books = bookService.findAll();
-
-//        AuthorRestProxy proxyAuthor = RestClientBuilder.newBuilder()
-//                .baseUrl( new URL("http://127.0.0.1:8080") )
-//                .connectTimeout( 1000, TimeUnit.MILLISECONDS )
-//                .build( AuthorRestProxy.class );
+    @Path("/authors")
+    public List<BookDto> getAll(){
+        var books = entityManager.createNamedQuery("Book.findAll", Book.class).getResultList();
 
         List<BookDto> ret = books.stream()
                 .map(s -> {
@@ -86,26 +212,7 @@ public class BookRest {
                     );
                 })
                 .collect(Collectors.toList());
-
         return ret;
     }
 
-    @POST
-    public void insert(Book book) {
-        bookService.insert(book);
-    }
-
-    @PUT
-    @Path("/{id}")
-    public void update(Book book, @PathParam("id") Integer id) {
-        book.setId(id);
-
-        bookService.update(book);
-    }
-
-    @DELETE
-    @Path("/{id}")
-    public void delete( @PathParam("id") Integer id ) {
-        bookService.delete(id);
-    }
 }

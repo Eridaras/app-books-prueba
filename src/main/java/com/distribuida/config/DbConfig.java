@@ -1,17 +1,13 @@
 package com.distribuida.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.helidon.config.Config;
-import io.helidon.dbclient.DbClient;
-import io.helidon.dbclient.jdbc.ConnectionPool;
-import io.helidon.dbclient.jdbc.JdbcDbClientProviderBuilder;
-import io.helidon.dbclient.spi.DbClientProvider;
-import io.helidon.dbclient.spi.DbClientProviderBuilder;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
+import jakarta.persistence.Persistence;
 import javax.sql.DataSource;
 
 @ApplicationScoped
@@ -43,20 +39,11 @@ public class DbConfig {
 
         return ds;
     }
-
     @Produces
     @ApplicationScoped
-    public DbClient dbClent() {
+    public Persistence persistence() {
 
-        var pool = ConnectionPool.builder()
-                .username(dbUser)
-                .password(dbPassword)
-                .url( dbUrl )
-                .build();
 
-        return JdbcDbClientProviderBuilder
-                .create()
-                .connectionPool(pool)
-                .build();
+        return null;
     }
 }
